@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Interface
+  include Utils
+
   MENU_OPTIONS = {
     '1' => :show_address,
     '2' => :show_balance,
@@ -77,7 +79,7 @@ class Interface
   end
 
   def show_balance
-    puts "Ваш баланс: #{format('%.5f', @wallet.balance)} sBTC"
+    puts "Ваш баланс: #{format_btc(@wallet.balance, 5)} sBTC"
   end
 
   def create_transaction
@@ -108,12 +110,12 @@ class Interface
     puts <<~HEREDOC
       Транзакция успешно отправлена!
       ID транзакции: #{result[:txid]}
-      Отправлено: #{format('%.8f', result[:amount])} sBTC
-      Комиссия: #{format('%.8f', result[:fee])} sBTC
-      Итоговая сумма: #{format('%.8f', result[:total_amount])} sBTC
+      Отправлено: #{format_btc(result[:amount])} sBTC
+      Комиссия: #{format_btc(result[:fee])} sBTC
+      Итоговая сумма: #{format_btc(result[:total_amount])} sBTC
       Адрес получателя: #{result[:to_address]}
-      Адрес отправителя: #{result[:address]}
-      Проверьте статус транзакции на https://mempool.space/signet/tx/#{result[:txid]}
+      Адрес отправителя: #{result[:from_address]}
+      Проверьте статус транзакции на #{result[:check_link]}
     HEREDOC
   end
 end

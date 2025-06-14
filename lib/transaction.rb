@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class Transaction
-  attr_reader :wallet, :to_addr, :amount, :fee_rate
+  include Utils
+
+  attr_reader :wallet, :to_addr, :amount
 
   def initialize(wallet, to_addr, amount)
     @wallet = wallet
@@ -26,15 +28,16 @@ class Transaction
 
     response = wallet.mempool.broadcast(tx_hex)
 
-    raise "Ошибка при отправке транзакции: #{response['error']}" if response['error']
+    raise "Ошибка при отправке транзакции: #{response.body}" unless response.success?
 
     {
-      txid: response['txid'],
+      txid: response.body,
       amount: amount,
       fee: fee,
       total_amount: total_amount,
       from_address: wallet.address,
-      to_address: to_addr
+      to_address: to_addr,
+      check_link: "https://mempool.space/signet/tx/#{response.body}"
     }
   end
 
@@ -46,9 +49,9 @@ class Transaction
     fee = total_amount - amount
     raise <<~HEREDOC
       Недостаточно средств на счете.
-      Требуется: #{format('%.8f', total_amount)} sBTC
-      Сумма: #{format('%.8f', amount)} sBTC + комиссия: #{format('%.8f', fee)} sBTC
-      Доступно: #{format('%.8f', current_balance)} sBTC
+      Требуется: #{format_btc(total_amount)} sBTC
+      Сумма: #{format_btc(amount)} sBTC + комиссия: #{format_btc(fee)} sBTC
+      Доступно: #{format_btc(current_balance)} sBTC
     HEREDOC
   end
 
@@ -146,11 +149,5 @@ class Transaction
     selected
   end
 
-  def to_satoshi(amount)
-    (amount * 100_000_000).to_i
-  end
 
-  def to_btc(satoshis)
-    satoshis / 100_000_000.0
-  end
 end

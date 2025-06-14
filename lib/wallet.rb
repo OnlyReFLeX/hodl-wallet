@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Wallet
+  include Utils
+
   FOLDER = './wallets'
 
   attr_reader :key, :mempool
@@ -15,7 +17,7 @@ class Wallet
   end
 
   def balance
-    @mempool.utxo.sum { |t| t['value'] } / 100_000_000.0
+    to_btc(@mempool.utxo.sum { |t| t['value'] })
   end
 
   def transfer(to_addr, amount)
