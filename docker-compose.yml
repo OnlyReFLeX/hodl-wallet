@@ -1,0 +1,7 @@
+services:
+  hodl-app:
+    build: .
+    volumes:
+      - ./wallets:/app/wallets # делаем папку wallets общей
+    stdin_open: true
+    tty: true
