@@ -11,6 +11,7 @@ class Transaction
     @amount = amount
   end
 
+  # Выполняет транзакцию, отправляя указанную сумму на адрес получателя
   def transfer!
     # Сначала создаем черновик транзакции для расчета размера
     draft_tx_hex = prepare_draft_transaction(to_addr, amount)
@@ -41,6 +42,9 @@ class Transaction
     }
   end
 
+  private
+
+  # Проверяет, достаточно ли средств на счете для выполнения транзакции
   def validate_balance(total_amount)
     current_balance = wallet.balance
 
@@ -60,12 +64,12 @@ class Transaction
     prepare_transaction_internal(to_addr, amount, 0) # временная комиссия для расчета
   end
 
+  # Создает транзакцию с учетом комиссии
   def prepare_transaction(to_addr, amount, fee)
     prepare_transaction_internal(to_addr, amount, fee)
   end
 
-  private
-
+  # Получает текущую комиссию из mempool
   def fee_rate
     @fee_rate ||= wallet.mempool.fees['fastestFee']
   end
@@ -109,8 +113,7 @@ class Transaction
       # Определяем script_pubkey для данного UTXO
       script_pubkey = Bitcoin::Script.parse_from_addr(wallet.address)
 
-      # Для P2PKH (legacy) адресов используем обычную ECDSA подпись
-      # Legacy P2PKH
+      # Вычисляем сигнатуру для входа
       sig_hash = tx.sighash_for_input(
         index,
         script_pubkey,
@@ -121,17 +124,19 @@ class Transaction
       signature = wallet.key.sign(sig_hash, algo: :ecdsa)
       signature += [Bitcoin::SIGHASH_TYPE[:all]].pack('C')
 
-      # Устанавливаем script_sig для P2PKH
+      # Устанавливаем script_sig
       input.script_sig = Bitcoin::Script.new << signature << wallet.key.pubkey.htb
     end
 
     tx
   end
 
+  # Рассчитывает комиссию на основе размера транзакции в байтах
   def calculate_fee(tx_size_vbytes)
     to_btc(tx_size_vbytes * fee_rate)
   end
 
+  # Берет UTXO, которые достаточно для отправки указанной суммы
   def select_utxos(utxos, required_amount)
     required_satoshis = to_satoshi(required_amount)
 
@@ -148,6 +153,4 @@ class Transaction
 
     selected
   end
-
-
 end

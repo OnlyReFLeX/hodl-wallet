@@ -26,6 +26,7 @@ class Wallet
 
   private
 
+  # Загружает ключ из файла или создает новый, если файл не указан или не существует
   def load_or_create_key(file)
     if file && File.exist?("#{FOLDER}/#{file}")
       key = Bitcoin::Key.from_wif(File.read("#{FOLDER}/#{file}").strip)

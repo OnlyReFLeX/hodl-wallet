@@ -1,5 +1,3 @@
-require 'httparty'
-
 module Api
   class Mempool
     include HTTParty
