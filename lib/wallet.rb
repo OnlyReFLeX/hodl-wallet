@@ -17,7 +17,7 @@ class Wallet
   end
 
   def balance
-    to_btc(@mempool.utxo.sum { |t| t['value'] })
+    to_btc(@mempool.utxo.sum { |t| t['value'].to_d })
   end
 
   def transfer(to_addr, amount)

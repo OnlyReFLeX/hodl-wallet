@@ -1,5 +1,6 @@
 require 'bitcoin'
 require 'httparty'
+require 'bigdecimal/util'
 require_relative 'config'
 require_relative 'lib/utils'
 require_relative 'lib/api/mempool'

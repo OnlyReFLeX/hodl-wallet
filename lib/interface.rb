@@ -7,7 +7,7 @@ class Interface
     '1' => :show_address,
     '2' => :show_balance,
     '3' => :create_transaction,
-    'h' => :help,
+    'h' => :help, 'help' => :help,
     '0' => :bye, 'exit' => :bye
   }.freeze
 
@@ -79,17 +79,22 @@ class Interface
   end
 
   def show_balance
-    puts "Ваш баланс: #{format_btc(@wallet.balance, 5)} sBTC"
+    puts "Ваш баланс: #{format_btc(@wallet.balance)} sBTC"
   end
 
   def create_transaction
     print 'Введите адрес получателя: '
     to_address = gets.strip
 
-    print 'Введите сумму sBTC: '
-    amount = gets.to_f
+    begin
+      print 'Введите сумму sBTC: '
+      amount = gets.strip.to_d
 
-    raise 'Сумма должна быть больше 0' if amount <= 0
+      raise 'Сумма должна быть больше 0' unless amount.positive?
+    rescue StandardError
+      puts 'Неверный формат суммы'
+      retry
+    end
 
     result = @wallet.transfer(to_address, amount)
     transaction_info(result)

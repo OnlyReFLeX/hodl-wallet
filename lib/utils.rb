@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
 module Utils
+  SATOSHIS_PER_BTC = '100_000_000'.to_d
+
   # Конвертация Bitcoin в сатоши
   def to_satoshi(amount)
-    (amount * 100_000_000).to_i
+    (amount.to_d * SATOSHIS_PER_BTC).to_i
   end
 
   # Конвертация сатоши в Bitcoin
   def to_btc(satoshis)
-    satoshis / 100_000_000.0
+    satoshis.to_d / SATOSHIS_PER_BTC
   end
 
   # Форматирование Bitcoin суммы
-  def format_btc(amount, precision = 8)
-    format("%.#{precision}f", amount)
+  def format_btc(amount)
+    amount.to_d.to_s("F")
   end
 end

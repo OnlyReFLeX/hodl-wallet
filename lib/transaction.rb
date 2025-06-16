@@ -18,7 +18,7 @@ class Transaction
 
     # Рассчитываем размер и комиссию
     tx_size_vbytes = draft_tx_hex.to_payload.bytesize
-    fee = calculate_fee(tx_size_vbytes)
+    fee = calculate_fee(tx_size_vbytes).to_d
     total_amount = amount + fee
 
     # Проверяем, достаточно ли средств на счете
@@ -71,11 +71,11 @@ class Transaction
 
   # Получает текущую комиссию из mempool
   def fee_rate
-    @fee_rate ||= wallet.mempool.fees['fastestFee']
+    @fee_rate ||= wallet.mempool.fees['fastestFee'].to_d
   end
 
   def prepare_transaction_internal(to_addr, send_amount, fee)
-    total_amount = send_amount + fee
+    total_amount = send_amount.to_d + fee.to_d
 
     # Получаем UTXO
     utxos = wallet.mempool.utxo
@@ -98,7 +98,7 @@ class Transaction
     )
 
     # Добавляем выход для сдачи (если есть)
-    total_input = selected_utxos.sum { |utxo| utxo['value'] }
+    total_input = selected_utxos.sum { |utxo| utxo['value'].to_d }.to_d
     change_amount = to_btc(total_input) - total_amount
 
     if change_amount.positive?
